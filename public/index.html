@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会议纪要｜个人管家 Pro 版</title>
+<style>
+  :root{--bg:#f4f6fb;--card:#fff;--ink:#1f2937;--muted:#6b7280;--pri:#2563eb;--pri-l:#e8efff;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--line:#e5e7eb;--hl:#fff7d6}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+  header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:36px 20px 70px}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+  header h1{margin:0 0 6px;font-size:28px}
+  header p{margin:0;opacity:.85}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .meta span{background:rgba(255,255,255,.15);padding:4px 12px;border-radius:999px;font-size:13px}
+  main{margin-top:-46px;padding-bottom:120px}
+  .card{background:var(--card);border-radius:14px;box-shadow:0 4px 18px rgba(30,58,138,.07);padding:22px 26px;margin-bottom:18px;transition:background .3s,box-shadow .3s}
+  .card.speaking{background:var(--hl);box-shadow:0 0 0 3px #facc15}
+  .card h2{margin:0 0 12px;font-size:20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .card h3{font-size:16px;margin:16px 0 6px;color:#1e3a8a}
+  .num{background:var(--pri);color:#fff;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+  .say{margin-left:auto;border:1px solid var(--pri);color:var(--pri);background:#fff;border-radius:8px;padding:3px 10px;font-size:13px;cursor:pointer}
+  .say:hover{background:var(--pri-l)}
+  ul{padding-left:20px;margin:6px 0}
+  li{margin:3px 0}
+  .tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:6px;margin-right:4px;vertical-align:1px}
+  .t-done{background:#dcfce7;color:#166534}.t-key{background:#dbeafe;color:#1e40af}.t-risk{background:#fee2e2;color:#991b1b}.t-tbd{background:#fef3c7;color:#92400e}
+  .concl{background:#f0fdf4;border-left:4px solid var(--ok);padding:8px 14px;border-radius:0 8px 8px 0;margin:10px 0}
+  .note{background:#fffbeb;border-left:4px solid var(--warn);padding:8px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:14px}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .summary div{background:var(--pri-l);border-radius:10px;padding:12px 14px}
+  .summary b{display:block;color:#1e3a8a;margin-bottom:2px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
+  th{background:#f8fafc;color:#334155;font-weight:600;white-space:nowrap}
+  td.c{text-align:center}
+  tr.done td{color:#9ca3af;text-decoration:line-through}
+  .pri{font-weight:600;white-space:nowrap}.p1{color:var(--bad)}.p2{color:var(--warn)}.p3{color:var(--muted)}
+  .progress{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0 14px}
+  .progress i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+  .player{position:fixed;left:0;right:0;bottom:0;background:#0f172a;color:#fff;padding:10px 16px;z-index:10;box-shadow:0 -4px 20px rgba(0,0,0,.2)}
+  .player .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .player button{background:#334155;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-size:14px;cursor:pointer}
+  .player button.main{background:var(--pri)}
+  .player button:disabled{opacity:.4;cursor:not-allowed}
+  .player select{background:#1e293b;color:#fff;border:1px solid #334155;border-radius:8px;padding:7px 8px;font-size:13px;max-width:210px}
+  .player .status{font-size:13px;opacity:.8;flex:1;min-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media (max-width:640px){
+    header h1{font-size:22px}.card{padding:18px}
+    table,thead,tbody,tr,th,td{display:block}thead{display:none}
+    tr{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;padding:6px 10px}
+    td{border:0;padding:3px 0}td.c{text-align:left}
+    td[data-l]::before{content:attr(data-l)"：";color:var(--muted);font-size:12px}
+  }
+  @media print{.player,.say{display:none}header{color:#000;background:none}main{margin-top:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>会议纪要：个人管家 Pro 版</h1>
+    <p>原文：20261113-个人管家_pro版（录音转写整理）</p>
+    <div class="meta">
+      <span>📅 2026-11-13（周五）16:52</span>
+      <span>⏱ 约 5 分钟</span>
+      <span>👥 发言人1、发言人2（产品经理）、发言人3</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="card" data-speak>
+    <h2><span class="num">★</span>会议概要<button class="say">🔊 播报</button></h2>
+    <div class="summary">
+      <div><b>产品定位</b>“个人管家 Pro 版”：连接家里和办公室的电脑，一键唤出助手，用了就离不开</div>
+      <div><b>核心差异</b>提前建好全盘检索和摘要；按用户实际做出的文件学习风格</div>
+      <div><b>商业模式</b>定价 19.9 元；推广全部交给推广负责人，按分成结算，不付固定费用</div>
+      <div><b>节奏</b>下周一整理需求，开发 3～5 天，内部试用；之后合规加完善 1～2 周，约一个月后上线</div>
+    </div>
+  </section>
+
+  <section class="card" data-speak>
+    <h2><span class="num">1</span>产品功能与使用场景<button class="say">🔊 播报</button></h2>
+    <h3>1.1 多设备接入</h3>
+    <ul>
+      <li>允许用户把<strong>家里的电脑</strong>和<strong>办公室的电脑</strong>接入，在电脑上按一个键就能唤出快捷助手；手机上也可以用语音下指令。</li>
+    </ul>
+    <h3>1.2 典型场景：自动写周报</h3>
+    <ul>
+      <li>以前写周报要把一周的材料全部上传。现在只要说一句“帮我整理周报”，助手就会找出工作电脑上本周做过的事情，自动整理。</li>
+      <li>可以指定重点，例如“重点写周三陪老板去某公司讲标的内容”。</li>
+      <li><span class="tag t-key">原则</span>写好后<strong>不替用户发给老板</strong>，由用户自己发送。产品只帮用户本人干活，不越权。</li>
+    </ul>
+    <h3>1.3 隐私与权限</h3>
+    <ul>
+      <li>工作电脑和家里电脑都可以上锁。</li>
+      <li><span class="tag t-key">声纹</span>可以把部分内容设为“只有本人声音才生效”：别人（比如家人拿手机）问敏感工作内容，回答“没有搜索结果”；本人询问才显示结果。</li>
+      <li>家里电脑和工作电脑可以分别设置不同的规则，工作和生活两边都能覆盖。</li>
+    </ul>
+    <h3>1.4 生活提醒</h3>
+    <ul>
+      <li>提醒伴侣生日、纪念日等各种纪念日，并给出对方喜好、礼物建议。</li>
+    </ul>
+    <div class="concl"><strong>一句话目标：</strong>做一个“用了就离不开”的个人管家，让用户工作更轻松。</div>
+  </section>
+
+  <section class="card" data-speak>
+    <h2><span class="num">2</span>竞争差异与宣传口径<button class="say">🔊 播报</button></h2>
+    <p>同类功能市面上不少产品都能做（转写中提到“豆包桌面”等）。我们的差异有两点：</p>
+    <h3>2.1 基础差异：更高效的全面检索</h3>
+    <ul>
+      <li>用户授权管理的硬盘内容<strong>提前全部建好索引</strong>，文字内容提前做好摘要。</li>
+      <li>提问时不用临时去搜，所以检索更快、更全。</li>
+    </ul>
+    <h3>2.2 核心差异：基于“成果”的用户画像</h3>
+    <ul>
+      <li>其他 AI 根据<strong>对话内容</strong>学习用户风格，但对话里可能随口乱说。</li>
+      <li>我们根据用户<strong>最终做出、保存下来的文件</strong>来建立画像，更能反映用户真实的要求和风格。</li>
+    </ul>
+    <div class="note"><strong>注意：</strong>以上是内部说法，<strong>对外宣传不能这么直接讲</strong>，宣传口径由推广负责人决定。</div>
+  </section>
+
+  <section class="card" data-speak>
+    <h2><span class="num">3</span>定价、推广与分工<button class="say">🔊 播报</button></h2>
+    <ul>
+      <li><span class="tag t-key">定价</span>19.9 元（按月还是一次性，会上没说明，待确认）。</li>
+      <li><span class="tag t-key">推广</span>以后做的各种小产品，推广全部交给推广负责人，<strong>不付固定费用，全部按分成</strong>。</li>
+      <li><span class="tag t-key">产品经理</span>发言人2 担任本产品的产品经理，负责所有需求，包括比较超前的部分。</li>
+      <li>发言人3 有补充时，转给发言人2 汇总。</li>
+    </ul>
+  </section>
+
+  <section class="card" data-speak>
+    <h2><span class="num">4</span>开发计划与时间安排<button class="say">🔊 播报</button></h2>
+    <ul>
+      <li><span class="tag t-key">11月16日 周一</span>大家一起整理需求；发言人2 把之前对李梦提的要求一起放进来。整理完后由芒果拆分清楚，交给李梦开发。</li>
+      <li><span class="tag t-key">开发 3～5 天</span>只要需求清晰，李梦 3～5 天能基本完成；对原型和外观暂无特别要求。</li>
+      <li><span class="tag t-key">内部试用</span>完成后先装在两位的电脑上试用，看感觉怎么样。</li>
+      <li><span class="tag t-key">下周末评估</span>如果觉得可行，开始完善产品，同时请做合规的朋友帮忙，<strong>认真解决合规问题</strong>。</li>
+      <li><span class="tag t-key">完善 1～2 周</span>完善后，预计<strong>约一个月后</strong>上线，开始产生被动收入。</li>
+    </ul>
+    <div class="note"><strong>风险：</strong>产品会读取用户电脑上的文件、识别声纹，涉及隐私和数据合规。会上明确合规必须认真做，否则产品可能直接做不下去。</div>
+  </section>
+
+  <section class="card" id="todo" data-speak>
+    <h2><span class="num">✓</span>待办工作项<button class="say">🔊 播报</button></h2>
+    <div style="font-size:14px;color:var(--muted)">勾选后自动保存在本浏览器　<span id="pct">0/0</span></div>
+    <div class="progress"><i id="bar"></i></div>
+    <table>
+      <thead><tr><th>完成</th><th>#</th><th>工作项</th><th>负责人</th><th>时间要求</th><th>优先级</th></tr></thead>
+      <tbody id="todoBody"></tbody>
+    </table>
+    <div class="note">说明：本纪要根据约 5 分钟的录音转写整理。转写原文有不少识别错误（如“我爸爸也能做”“oppos”“数字嗅”等无法确认的词），已按上下文理解或略去；人名“李梦”“芒果”按转写原样保留。原文没写明负责人的事项，按对话内容推断，已标注“推断”。日期按会议日 2026-11-13（周五）推算。</div>
+  </section>
+
+</main>
+
+<div class="player">
+  <div class="wrap">
+    <button class="main" id="playAll">▶ 全文播报</button>
+    <button id="pauseBtn" disabled>⏸ 暂停</button>
+    <button id="stopBtn" disabled>⏹ 停止</button>
+    <select id="rate" title="语速">
+      <option value="0.8">0.8x 慢速</option>
+      <option value="1" selected>1.0x 正常</option>
+      <option value="1.25">1.25x</option>
+      <option value="1.5">1.5x 快速</option>
+    </select>
+    <select id="voice" title="发音人"></select>
+    <span class="status" id="status">点击“全文播报”或各段的🔊按钮收听</span>
+  </div>
+</div>
+
+<script>
+const TODOS = [
+  ["一起整理产品需求；发言人2 把之前对李梦提的要求一并放进来","发言人2 牵头，全员参与","11月16日 周一","高"],
+  ["把整理好的需求拆分清楚，交给李梦","芒果","11月16日 需求整理完后","高"],
+  ["开发第一版（只要功能，不要求外观）：多设备接入、一键唤出、全盘索引和摘要、周报整理、声纹权限、纪念日提醒","李梦","收到需求后 3～5 天","高"],
+  ["第一版装到两位的电脑上内部试用，记录体验问题","发言人1、发言人3（推断）","第一版完成后","高"],
+  ["评估试用效果，决定是否进入完善阶段","全员","下周末（约11月21～22日）","高"],
+  ["联系做合规的朋友，梳理并解决隐私和数据合规问题（读取本地文件、声纹识别等）","发言人1（推断）","评估通过后立即开始","高"],
+  ["完善产品，准备上线","发言人2（产品经理）、李梦","评估通过后 1～2 周；目标约一个月后上线","中"],
+  ["制定对外宣传口径：把“提前建好检索”和“按成果学习风格”包装成对外卖点","推广负责人（推断为发言人3）","上线前","中"],
+  ["确认 19.9 元定价的计费方式（按月 / 一次性）和推广分成比例","发言人2、推广负责人","上线前","中"],
+  ["把个人补充的需求转给发言人2 汇总","发言人3","11月16日 之前","低"]
+];
+const KEY="butler-pro-1113-todos";
+let state={};try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+const tb=document.getElementById("todoBody");
+TODOS.forEach((t,i)=>{
+  const tr=document.createElement("tr");
+  const p=t[3]==="高"?"p1":t[3]==="中"?"p2":"p3";
+  tr.innerHTML=`<td class="c" data-l="完成"><input type="checkbox" aria-label="完成"></td><td data-l="#">${i+1}</td><td data-l="工作项">${t[0]}</td><td data-l="负责人">${t[1]}</td><td data-l="时间要求">${t[2]}</td><td data-l="优先级" class="pri ${p}">${t[3]}</td>`;
+  const cb=tr.querySelector("input");cb.checked=!!state[i];tr.classList.toggle("done",cb.checked);
+  cb.onchange=()=>{state[i]=cb.checked;tr.classList.toggle("done",cb.checked);localStorage.setItem(KEY,JSON.stringify(state));upd()};
+  tb.appendChild(tr);
+});
+function upd(){const n=TODOS.filter((_,i)=>state[i]).length;document.getElementById("pct").textContent=`已完成 ${n}/${TODOS.length}`;document.getElementById("bar").style.width=(n/TODOS.length*100)+"%"}
+upd();
+
+/* ---------- 语音播报 ---------- */
+const synth=window.speechSynthesis;
+const $=id=>document.getElementById(id);
+const statusEl=$("status"),pauseBtn=$("pauseBtn"),stopBtn=$("stopBtn"),voiceSel=$("voice");
+const cards=[...document.querySelectorAll("[data-speak]")];
+let queue=[],playing=false,paused=false,voices=[];
+
+function loadVoices(){
+  voices=synth?synth.getVoices().filter(v=>/^zh/i.test(v.lang)):[];
+  voiceSel.innerHTML=voices.length?voices.map((v,i)=>`<option value="${i}">${v.name}</option>`).join(""):'<option>系统默认中文</option>';
+  const pref=voices.findIndex(v=>/zh[-_]CN/i.test(v.lang)&&/Xiaoxiao|Tingting|Google|Microsoft/i.test(v.name));
+  if(pref>=0)voiceSel.value=pref;
+}
+if(!synth){statusEl.textContent="当前浏览器不支持语音播报，请使用 Chrome、Edge 或 Safari";$("playAll").disabled=true}
+else{loadVoices();synth.onvoiceschanged=loadVoices}
+
+function cardText(card){
+  if(card.id==="todo"){
+    return "待办工作项，共"+TODOS.length+"项。"+TODOS.map((t,i)=>`第${i+1}项，${t[0]}。负责人：${t[1]}。时间要求：${t[2]}。优先级：${t[3]}。`).join("");
+  }
+  const c=card.cloneNode(true);c.querySelectorAll(".say,.num").forEach(e=>e.remove());
+  c.querySelectorAll("li,p,h2,h3,div,b").forEach(e=>e.append("。"));
+  return c.textContent.replace(/\s+/g," ").replace(/[。．]\s*(?=[。，：；])/g,"").replace(/[：:]。/g,"：").replace(/。+/g,"。")
+    .replace(/～/g,"到").replace(/\+/g,"加").replace(/\//g,"、").replace(/（推断）/g,"");
+}
+function chunks(txt){ // 拆成短句，避免 Chrome 长文本中断
+  const out=[];let buf="";
+  txt.split(/(?<=[。！？；])/).forEach(s=>{if((buf+s).length>120&&buf){out.push(buf);buf=s}else buf+=s});
+  if(buf.trim())out.push(buf);return out;
+}
+function mark(card){cards.forEach(c=>c.classList.toggle("speaking",c===card));if(card)card.scrollIntoView({behavior:"smooth",block:"start"})}
+function stop(){queue=[];playing=false;paused=false;synth.cancel();mark(null);pauseBtn.disabled=stopBtn.disabled=true;pauseBtn.textContent="⏸ 暂停";statusEl.textContent="已停止"}
+function next(){
+  if(!queue.length){playing=false;mark(null);pauseBtn.disabled=stopBtn.disabled=true;statusEl.textContent="播报完毕";return}
+  const {card,text}=queue.shift();
+  if(card)mark(card);
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="zh-CN";u.rate=parseFloat($("rate").value);
+  if(voices[voiceSel.value])u.voice=voices[voiceSel.value];
+  u.onend=()=>{if(playing)next()};u.onerror=e=>{if(playing&&e.error!=="interrupted"&&e.error!=="canceled")next()};
+  statusEl.textContent="正在播报："+(card?card.querySelector("h2").firstChild.nextSibling.textContent.trim():"");
+  synth.speak(u);
+}
+function play(list){
+  synth.cancel();queue=[];
+  list.forEach(card=>chunks(cardText(card)).forEach((t,i)=>queue.push({card:i===0?card:null,text:t})));
+  playing=true;paused=false;pauseBtn.disabled=stopBtn.disabled=false;pauseBtn.textContent="⏸ 暂停";
+  setTimeout(next,60);
+}
+$("playAll").onclick=()=>play(cards);
+cards.forEach(c=>c.querySelector(".say").onclick=()=>play([c]));
+stopBtn.onclick=stop;
+pauseBtn.onclick=()=>{
+  if(!playing)return;
+  if(paused){synth.resume();paused=false;pauseBtn.textContent="⏸ 暂停"}
+  else{synth.pause();paused=true;pauseBtn.textContent="▶ 继续"}
+};
+window.addEventListener("beforeunload",()=>synth&&synth.cancel());
+</script>
+</body>
+</html>
